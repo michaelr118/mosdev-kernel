@@ -1,11 +1,8 @@
 # mosdev-kernel
 Unix-inspired operating system for i386 and x86_64. Developed as a hobby.
 
-You will need a cross-compiler to build this project. The one I use is a modified version of GCC installed at ```/usr/local/cross```:
-```
-i686-elf-gcc
-i686-elf-as
-```
+You will need a cross-compiler to build this project. The one I use is a modified version of GCC installed at ```/usr/local/cross```.
+
 The reason being that the standard GCC is built specifically for your operating system and will not generate a valid mosdev executable.
 
 To compile:
