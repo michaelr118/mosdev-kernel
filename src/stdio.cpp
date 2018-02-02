@@ -91,7 +91,7 @@ int printf(const char* __restrict format, ...)
 int putchar(int ic)
 {
 	char c = (char)ic;
-	tty_put(&c, sizeof(c));
+	tty_puts(&c, sizeof(c));
 
 	return ic;
 }
