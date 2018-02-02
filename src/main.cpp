@@ -9,5 +9,5 @@
 extern "C" void kernel_main(void)
 {
 	tty_init();
-	printf("Welcome. vmmos-i386\n\nKernel says...\n");
+	printf("Welcome. vmmos-i386\n\nKernel says...\n\n");
 }

@@ -42,7 +42,7 @@ void tty_init(void)
 /*
  * Moves the hardware cursor (blinky underline) to x,y
 */
-void tty_movecursor(size_t x, size_t y)
+static void tty_movecursor(size_t x, size_t y)
 {
 	// Terminal buffer is flat memory, calculate 1-dimensional index from x,y
 	const size_t i = ((y * TTY_WIDTH) + x);
@@ -50,7 +50,19 @@ void tty_movecursor(size_t x, size_t y)
 	io_outb(0x3d4, 0x0f);
 	io_outb(0x3d5, (uint8_t)(i & 0xff));
 	io_outb(0x3d4, 0x0e);
-	io_outb(0x3d5, (uint8_t)((i >> 8) && 0xff));
+	io_outb(0x3d5, (uint8_t)((i >> 8) & 0xff));
+}
+
+static void tty_scroll(void)
+{
+	memcpy(tty_buffer, &tty_buffer[TTY_WIDTH], (TTY_WIDTH * (TTY_HEIGHT - 1)
+				* sizeof(uint16_t)));
+
+	for (size_t x = 0; x < TTY_WIDTH; x++)
+	{
+		const size_t i = (((TTY_HEIGHT - 1) * TTY_WIDTH) + x);
+		tty_buffer[i] = vga_entry(' ', tty_color);
+	}
 }
 
 /*
@@ -73,7 +85,10 @@ void tty_putch(char c)
 	{
 		tty_column = 0;
 		if (++tty_row == TTY_HEIGHT)
-			tty_row = 0;
+		{
+			tty_scroll();
+			tty_row--;
+		}
 		return;
 	}
 
@@ -86,7 +101,10 @@ void tty_putch(char c)
 	{
 		tty_column = 0;
 		if (++tty_row == TTY_HEIGHT)
-			tty_row = 0;
+		{
+			tty_scroll();
+			tty_row--;
+		}
 	}
 }
 
