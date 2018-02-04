@@ -2,20 +2,21 @@
 #define _KERNEL_GDT_H
 
 #include <stdint.h>
+#include "common.h"
 
-struct GDT_PTR {
-	unsigned short limit;
-	unsigned int base;
-} __attribute__((packed));
+typedef struct GDT_PTR {
+	u16int limit;
+	u32int base;
+} __attribute__((packed)) gdt_ptr_t;
 
-struct GDT_ENTRY {
-	unsigned short limit_l;
-	unsigned short base_l;
-	unsigned char base_middle;
-	unsigned char access;
-	unsigned char gran;
-	unsigned char base_high;
-} __attribute__((packed));
+typedef struct GDT_ENTRY {
+	u16int limit_l;
+	u16int base_l;
+	u8int base_middle;
+	u8int access;
+	u8int gran;
+	u8int base_high;
+} __attribute__((packed)) gdt_entry_t;
 
 void gdt_install(void);
 

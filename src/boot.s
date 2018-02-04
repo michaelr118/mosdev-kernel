@@ -23,13 +23,12 @@ stack_top:
 
 .section .text
 
-.extern _pgdt
-
 .global _gdt_set
 .type _gdt_set, @function
 
 _gdt_set:
-	lgdt (_pgdt)
+	mov 4(%esp), %eax
+	lgdt (%eax)
 	mov $0x10, %ax
 	mov %ax, %ds
 	mov %ax, %es
