@@ -155,3 +155,67 @@ isr_common:
 	add $8, %esp
 	sti
 	iret
+
+.macro IRQ i, j
+.global irq\i
+irq\i:
+	cli
+	push $0
+	push $\j
+	jmp irq_common
+.endm
+
+// Programmable Interrupt Timer
+IRQ 0,32
+// Keyboard Input
+IRQ 1,33
+// Cascade PIC
+IRQ 2,34
+// COM2
+IRQ 3,35
+// COM1
+IRQ 4,36
+// LPT2
+IRQ 5,37
+// Floppy Disk
+IRQ 6,38
+// LPT1
+IRQ 7,39
+// CMOS Clock
+IRQ 8,40
+// Peripheral
+IRQ 9,41
+// Peripheral
+IRQ 10,42
+// Peripheral
+IRQ 11,43
+// PS2 Mouse
+IRQ 12,44
+// Coprocessor
+IRQ 13,45
+// Primary ATA HDD
+IRQ 14,46
+// Secondary ATA HDD
+IRQ 15,47
+
+.extern irq_handler
+
+irq_common:
+	pusha
+	mov %ds, %ax
+	push %eax
+	mov $0x10, %ax
+	mov %ax, %ds
+	mov %ax, %es
+	mov %ax, %fs
+	mov %ax, %gs
+	call irq_handler
+	pop %eax
+	mov %ax, %ds
+	mov %ax, %es
+	mov %ax, %fs
+	mov %ax, %gs
+	popa
+	add $8, %esp
+	sti
+	iret
