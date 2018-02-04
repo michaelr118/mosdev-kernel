@@ -2,7 +2,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "ioaccess.inl"
+#include "common.h"
 #include "string.h"
 #include "tty.h"
 
@@ -128,4 +128,38 @@ void tty_puts(const char *s, size_t len)
 void tty_puts(const char *s)
 {
 	tty_puts(s, strlen(s));
+}
+
+/*
+ * Print integer n to the terminal
+*/
+void tty_putd(u32int n)
+{
+	if (n == 0)
+	{
+		tty_putch('0');
+		return;
+	}
+
+	s32int m = n;
+	char c[32];
+	int i = 0;
+
+	while (m > 0)
+	{
+		c[i] = ('0' + (m % 10));
+		m /= 10;
+		i++;
+	}
+
+	c[i] = 0;
+
+	char c2[32];
+	c2[i--] = 0;
+	int j = 0;
+
+	while (i >= 0)
+		c2[i--] = c[j++];
+
+	tty_puts(c2);
 }

@@ -1,6 +1,6 @@
 #include "gdt.h"
 
-// _gdt_set() is in boot.s. Much easier to set GDT in assembly
+// _gdt_set() is in asm/gdt.s. Much easier to set GDT in assembly
 extern "C" { void _gdt_set(u32int); }
 
 // Our actual GDT
@@ -36,7 +36,7 @@ static void gdt_entry_set(s32int i, u32int base, u32int limit, u8int access)
  * Installs our GDT (Global Descriptor Table).
  * Initial GDT will be simple and use full 4GB untranslated
 */
-extern "C" void gdt_install(void)
+void gdt_install(void)
 {
 	// Setting up pointer to gdt. Limit is always sizeof(gdt) - 1
 	// base is the starting address of the GDT

@@ -2,7 +2,7 @@ SC := i686-elf-as
 CC := i686-elf-g++
 
 CPPFLAGS := -ffreestanding -O2 -Wall -Wextra -nostdlib -fno-exceptions -fno-rtti
-LDFLAGS := -Tsrc/linker.ld -ffreestanding -O2 -nostdlib -lgcc
+LDFLAGS := -Tlinker.ld -ffreestanding -O2 -nostdlib -lgcc
 
 TARGET := vmmos-i386
 
@@ -12,26 +12,20 @@ OUT_DIR := bin
 
 SYS_ROOT := bin/sysroot
 
-SRC_FILES := $(wildcard $(SRC_DIR)/*.cpp)
-OBJ_FILES := $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(SRC_FILES))
+ASM_SRC_FILES := $(wildcard $(SRC_DIR)/asm/*.s)
+ASM_OBJ_FILES := $(patsubst $(SRC_DIR)/asm/*.s,$(OBJ_DIR)/%.s.o,$(ASM_SRC_FILES))
 
-$(OUT_DIR)/$(TARGET): $(OBJ_DIR)/boot.o $(OBJ_DIR)/asm.o $(OBJ_DIR)/crti.o $(OBJ_DIR)/crtn.o $(OBJ_FILES)
+CPP_SRC_FILES := $(wildcard $(SRC_DIR)/*.cpp)
+CPP_OBJ_FILES := $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.cpp.o,$(CPP_SRC_FILES))
+
+$(OUT_DIR)/$(TARGET): $(ASM_OBJ_FILES) $(CPP_OBJ_FILES)
 	$(CC) $(LDFLAGS) -o $@ $^
 
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
+$(OBJ_DIR)/%.s.o: $(SRC_DIR)/asm/%.s
+	$(SC) $< -o $@
+
+$(OBJ_DIR)/%.cpp.o: $(SRC_DIR)/%.cpp
 	$(CC) $(CPPFLAGS) -c -o $@ $<
-
-$(OBJ_DIR)/boot.o: $(SRC_DIR)/boot.s
-	$(SC) $< -o $@
-
-$(OBJ_DIR)/asm.o: $(SRC_DIR)/asm.s
-	$(SC) $< -o $@
-
-$(OBJ_DIR)/crti.o: $(SRC_DIR)/crti.s
-	$(SC) $< -o $@
-
-$(OBJ_DIR)/crtn.o: $(SRC_DIR)/crtn.s
-	$(SC) $< -o $@
 
 iso:
 	@cp -rfp $(SRC_DIR)/grub.cfg $(SYS_ROOT)/boot/grub/

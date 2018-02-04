@@ -16,4 +16,6 @@ typedef struct IDT_PTR {
 	u32int base;
 } __attribute__((packed)) idt_ptr_t;
 
+extern "C" void idt_install(void);
+
 #endif

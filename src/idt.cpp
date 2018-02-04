@@ -2,7 +2,7 @@
 #include "string.h"
 
 /*
- * Found in asm.s
+ * Found in asm/idt.s
  * _idt_set - Set the Interrupt Descriptor Table (IDT)
  * 32 Required Interrupt Service Routines (ISR)
 */
@@ -19,6 +19,12 @@ idt_entry_t idt[256];
 // Pointer to IDT used by _idt_set
 idt_ptr_t idt_ptr;
 
+/*
+ * Insert entry i into the IDT. Each entry must be formatted correctly.
+ * base - start address of function which will handle ISR
+ * sel - segment where function resides (0x08, kernel code)
+ * opt - options
+*/
 static void idt_set_entry(u8int i, u32int base, u16int sel, u8int opt)
 {
 	idt[i].base_l = (base & 0xffff);
@@ -30,13 +36,21 @@ static void idt_set_entry(u8int i, u32int base, u16int sel, u8int opt)
 	idt[i].opt = opt;
 }
 
-extern "C" void idt_install(void)
+/*
+ * Installs our IDT (Interrupt Descriptor Table)
+ * 0...31 ISR are required by x86 and must be non-null
+*/
+void idt_install(void)
 {
+	// Pointer to idt. Limit is always sizeof(idt) - 1
+	// base is starting address of the IDT
 	idt_ptr.limit = ((sizeof(idt_entry_t) * 256) - 1);
 	idt_ptr.base = (u32int)&idt;
 
+	// Zero the idt array initially so we don't get unexpected behavior
 	memset(&idt, 0, (sizeof(idt_entry_t) * 256));
 
+	// 32 Required ISR
 	idt_set_entry(0, (u32int)isr0, 0x08, 0x8e);
 	idt_set_entry(1, (u32int)isr1, 0x08, 0x8e);
 	idt_set_entry(2, (u32int)isr2, 0x08, 0x8e);
@@ -70,5 +84,6 @@ extern "C" void idt_install(void)
 	idt_set_entry(30, (u32int)isr30, 0x08, 0x8e);
 	idt_set_entry(31, (u32int)isr31, 0x08, 0x8e);
 
+	// Tells the processor about our new IDT
 	_idt_set((u32int)&idt_ptr);
 }

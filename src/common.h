@@ -8,4 +8,16 @@ typedef short s16int;
 typedef unsigned char u8int;
 typedef char s8int;
 
+static inline void io_outb(u16int port, u8int val)
+{
+	asm volatile ( "outb %0, %1" : : "a"(val), "Nd"(port) );
+}
+
+static inline u8int io_inb(u16int port)
+{
+	u8int ret;
+	asm volatile ( "inb %1, %0" : "=a"(ret) : "Nd"(port) );
+	return ret;
+}
+
 #endif
