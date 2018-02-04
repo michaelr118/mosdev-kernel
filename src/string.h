@@ -1,7 +1,6 @@
 #ifndef _LIBK_STRING_H
 #define _LIBK_STRING_H
 
-#include "cdefs.h"
 #include <stddef.h>
 
 #ifdef __cplusplus

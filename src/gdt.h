@@ -18,6 +18,4 @@ typedef struct GDT_ENTRY {
 	u8int base_high;
 } __attribute__((packed)) gdt_entry_t;
 
-void gdt_install(void);
-
 #endif

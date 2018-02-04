@@ -36,12 +36,12 @@ static void gdt_entry_set(s32int i, u32int base, u32int limit, u8int access)
  * Installs our GDT (Global Descriptor Table).
  * Initial GDT will be simple and use full 4GB untranslated
 */
-void gdt_install(void)
+extern "C" void gdt_install(void)
 {
 	// Setting up pointer to gdt. Limit is always sizeof(gdt) - 1
 	// base is the starting address of the GDT
 	gdt_ptr.limit = ((sizeof(gdt_entry_t) * 5) - 1);
-	gdt_ptr.base = (addr)&gdt;
+	gdt_ptr.base = (u32int)&gdt;
 
 	gdt_entry_set(0, 0, 0, 0); // NULL
 

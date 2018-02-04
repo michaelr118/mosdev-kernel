@@ -1,8 +1,6 @@
 #ifndef _LIBK_STDIO_H
 #define _LIBK_STDIO_H
 
-#include "cdefs.h"
-
 #define EOF (-1)
 
 #ifdef __cplusplus

@@ -15,13 +15,16 @@ SYS_ROOT := bin/sysroot
 SRC_FILES := $(wildcard $(SRC_DIR)/*.cpp)
 OBJ_FILES := $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(SRC_FILES))
 
-$(OUT_DIR)/$(TARGET): $(OBJ_DIR)/boot.o $(OBJ_DIR)/crti.o $(OBJ_DIR)/crtn.o $(OBJ_FILES)
+$(OUT_DIR)/$(TARGET): $(OBJ_DIR)/boot.o $(OBJ_DIR)/asm.o $(OBJ_DIR)/crti.o $(OBJ_DIR)/crtn.o $(OBJ_FILES)
 	$(CC) $(LDFLAGS) -o $@ $^
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 	$(CC) $(CPPFLAGS) -c -o $@ $<
 
 $(OBJ_DIR)/boot.o: $(SRC_DIR)/boot.s
+	$(SC) $< -o $@
+
+$(OBJ_DIR)/asm.o: $(SRC_DIR)/asm.s
 	$(SC) $< -o $@
 
 $(OBJ_DIR)/crti.o: $(SRC_DIR)/crti.s

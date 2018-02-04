@@ -22,37 +22,17 @@ stack_bottom:
 stack_top:
 
 .section .text
-
-.global _gdt_set
-.type _gdt_set, @function
-
-_gdt_set:
-	mov 4(%esp), %eax
-	lgdt (%eax)
-	mov $0x10, %ax
-	mov %ax, %ds
-	mov %ax, %es
-	mov %ax, %fs
-	mov %ax, %gs
-	mov %ax, %ss
-	jmp $0x08, $_gdt_set_ret
-
-_gdt_set_ret:
-	ret
-
-.global _tss_flush
-.type _tss_flush, @function
-
-_tss_flush:
-	mov $0x2b, %ax
-	ltr %ax
-	ret
-
+	
 .global _boot_main
 .type _boot_main, @function
 
 _boot_main:
 	mov $stack_top, %esp
+
+	cli
+	call gdt_install
+	call idt_install
+	sti
 
 	// TODO: Setup GDT/paging
 
