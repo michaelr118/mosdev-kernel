@@ -166,6 +166,12 @@ isr_common:
 	sti
 	iret
 
+/*
+Interrupt Service Request (IRQ) macros.
+An IRQ is generated when something needs the kernel's attention (such
+as the keyboard, mouse, etc).
+The first 15 of these are BIOS interrupts re-mapped to 32+
+*/
 .macro IRQ i, j
 .global irq\i
 irq\i:
@@ -210,6 +216,11 @@ IRQ 15,47
 
 .extern irq_handler
 
+/*
+Calls irq_handler with the current state of the registers and the interrupt number.
+irq_handler will be responsible for dispatching messages to the registered handler.
+If we don't have a registered handler, the IRQ is simply ignored.
+*/
 irq_common:
 	pusha
 	push %ds

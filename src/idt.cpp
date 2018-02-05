@@ -5,7 +5,7 @@
 /*
  * Found in asm/idt.s
  * _idt_set - Set the Interrupt Descriptor Table (IDT)
- * 32 Required Interrupt Service Routines (ISR)
+ * 32 Required Interrupt Service Routines (ISR) + initial 15 IRQ
 */
 extern "C" { void _idt_set(u32int); void isr0(); void isr1(); void isr2(); void isr3();
 void isr4(); void isr5(); void isr6(); void isr7(); void isr8(); void isr9();
@@ -33,15 +33,15 @@ irq_handler_t irqh[256];
  * sel - segment where function resides (0x08, kernel code)
  * opt - options
 */
-static void idt_set_entry(u8int i, u32int base, u16int sel, u8int opt)
+static void idt_set_entry(u8int i, u32int base)
 {
 	idt[i].base_l = (base & 0xffff);
 	idt[i].base_high = ((base >> 16) & 0xffff);
 
-	idt[i].sel = sel;
+	idt[i].sel = 0x08;
 	idt[i].rsvd = 0;
 
-	idt[i].opt = opt;
+	idt[i].opt = 0x8e;
 }
 
 /*
@@ -69,90 +69,83 @@ void idt_install(void)
 
 	// Begin remap
 	io_outb(0x20, 0x11);
-	io_wait();
 	io_outb(0xa0, 0x11);
-	io_wait();
 
 	// Master offset 32
 	io_outb(0x21, 0x20);
-	io_wait();
 	// Slave offset 40
 	io_outb(0xa1, 0x28);
-	io_wait();
 
 	// Tell master about slave
 	io_outb(0x21, 0x04);
-	io_wait();
 	// Tell slave about master
 	io_outb(0xa1, 0x02);
-	io_wait();
 
 	// Put both master/slave in 8086 mode (0x01)
 	io_outb(0x21, 0x01);
-	io_wait();
 	io_outb(0xa1, 0x01);
-	io_wait();
 
 	// Restore saved state
 	io_outb(0x21, m);
 	io_outb(0xa1, s);
 
+	// Temporary: tells PIC that we only care about keyboard interrupts
 	io_outb(0x21, 0xfd);
 	io_outb(0xa1, 0xff);
 
 	// Begin mapping ISR 0...31 and IRQ 32+
 	
 	// ISR
-	idt_set_entry(0, (u32int)isr0, 0x08, 0x8e);
-	idt_set_entry(1, (u32int)isr1, 0x08, 0x8e);
-	idt_set_entry(2, (u32int)isr2, 0x08, 0x8e);
-	idt_set_entry(3, (u32int)isr3, 0x08, 0x8e);
-	idt_set_entry(4, (u32int)isr4, 0x08, 0x8e);
-	idt_set_entry(5, (u32int)isr5, 0x08, 0x8e);
-	idt_set_entry(6, (u32int)isr6, 0x08, 0x8e);
-	idt_set_entry(7, (u32int)isr7, 0x08, 0x8e);
-	idt_set_entry(8, (u32int)isr8, 0x08, 0x8e);
-	idt_set_entry(9, (u32int)isr9, 0x08, 0x8e);
-	idt_set_entry(10, (u32int)isr10, 0x08, 0x8e);
-	idt_set_entry(11, (u32int)isr11, 0x08, 0x8e);
-	idt_set_entry(12, (u32int)isr12, 0x08, 0x8e);
-	idt_set_entry(13, (u32int)isr13, 0x08, 0x8e);
-	idt_set_entry(14, (u32int)isr14, 0x08, 0x8e);
-	idt_set_entry(15, (u32int)isr15, 0x08, 0x8e);
-	idt_set_entry(16, (u32int)isr16, 0x08, 0x8e);
-	idt_set_entry(17, (u32int)isr17, 0x08, 0x8e);
-	idt_set_entry(18, (u32int)isr18, 0x08, 0x8e);
-	idt_set_entry(19, (u32int)isr19, 0x08, 0x8e);
-	idt_set_entry(20, (u32int)isr20, 0x08, 0x8e);
-	idt_set_entry(21, (u32int)isr21, 0x08, 0x8e);
-	idt_set_entry(22, (u32int)isr22, 0x08, 0x8e);
-	idt_set_entry(23, (u32int)isr23, 0x08, 0x8e);
-	idt_set_entry(24, (u32int)isr24, 0x08, 0x8e);
-	idt_set_entry(25, (u32int)isr25, 0x08, 0x8e);
-	idt_set_entry(26, (u32int)isr26, 0x08, 0x8e);
-	idt_set_entry(27, (u32int)isr27, 0x08, 0x8e);
-	idt_set_entry(28, (u32int)isr28, 0x08, 0x8e);
-	idt_set_entry(29, (u32int)isr29, 0x08, 0x8e);
-	idt_set_entry(30, (u32int)isr30, 0x08, 0x8e);
-	idt_set_entry(31, (u32int)isr31, 0x08, 0x8e);
+	idt_set_entry(0, (u32int)isr0);
+	idt_set_entry(1, (u32int)isr1);
+	idt_set_entry(2, (u32int)isr2);
+	idt_set_entry(3, (u32int)isr3);
+	idt_set_entry(4, (u32int)isr4);
+	idt_set_entry(5, (u32int)isr5);
+	idt_set_entry(6, (u32int)isr6);
+	idt_set_entry(7, (u32int)isr7);
+	idt_set_entry(8, (u32int)isr8);
+	idt_set_entry(9, (u32int)isr9);
+	idt_set_entry(10, (u32int)isr10);
+	idt_set_entry(11, (u32int)isr11);
+	idt_set_entry(12, (u32int)isr12);
+	idt_set_entry(13, (u32int)isr13);
+	idt_set_entry(14, (u32int)isr14);
+	idt_set_entry(15, (u32int)isr15);
+	idt_set_entry(16, (u32int)isr16);
+	idt_set_entry(17, (u32int)isr17);
+	idt_set_entry(18, (u32int)isr18);
+	idt_set_entry(19, (u32int)isr19);
+	idt_set_entry(20, (u32int)isr20);
+	idt_set_entry(21, (u32int)isr21);
+	idt_set_entry(22, (u32int)isr22);
+	idt_set_entry(23, (u32int)isr23);
+	idt_set_entry(24, (u32int)isr24);
+	idt_set_entry(25, (u32int)isr25);
+	idt_set_entry(26, (u32int)isr26);
+	idt_set_entry(27, (u32int)isr27);
+	idt_set_entry(28, (u32int)isr28);
+	idt_set_entry(29, (u32int)isr29);
+	idt_set_entry(30, (u32int)isr30);
+	idt_set_entry(31, (u32int)isr31);
 
 	// IRQ
-	idt_set_entry(32, (u32int)irq0, 0x08, 0x8e);
-	idt_set_entry(33, (u32int)irq1, 0x08, 0x8e);
-	idt_set_entry(34, (u32int)irq2, 0x08, 0x8e);
-	idt_set_entry(35, (u32int)irq3, 0x08, 0x8e);
-	idt_set_entry(36, (u32int)irq4, 0x08, 0x8e);
-	idt_set_entry(37, (u32int)irq5, 0x08, 0x8e);
-	idt_set_entry(38, (u32int)irq6, 0x08, 0x8e);
-	idt_set_entry(39, (u32int)irq7, 0x08, 0x8e);
-	idt_set_entry(40, (u32int)irq8, 0x08, 0x8e);
-	idt_set_entry(41, (u32int)irq9, 0x08, 0x8e);
-	idt_set_entry(42, (u32int)irq10, 0x08, 0x8e);
-	idt_set_entry(43, (u32int)irq11, 0x08, 0x8e);
-	idt_set_entry(44, (u32int)irq12, 0x08, 0x8e);
-	idt_set_entry(45, (u32int)irq13, 0x08, 0x8e);
-	idt_set_entry(46, (u32int)irq14, 0x08, 0x8e);
-	idt_set_entry(47, (u32int)irq15, 0x08, 0x8e);
+	idt_set_entry(32, (u32int)irq0);
+	idt_set_entry(33, (u32int)irq1);
+	idt_set_entry(34, (u32int)irq2);
+	idt_set_entry(35, (u32int)irq3);
+	idt_set_entry(36, (u32int)irq4);
+	idt_set_entry(37, (u32int)irq5);
+	idt_set_entry(38, (u32int)irq6);
+	idt_set_entry(39, (u32int)irq7);
+	idt_set_entry(40, (u32int)irq8);
+	idt_set_entry(41, (u32int)irq9);
+	idt_set_entry(42, (u32int)irq10);
+	idt_set_entry(43, (u32int)irq11);
+	idt_set_entry(44, (u32int)irq12);
+	idt_set_entry(45, (u32int)irq13);
+	idt_set_entry(46, (u32int)irq14);
+	idt_set_entry(47, (u32int)irq15);
 
 	// Tells the processor about our new IDT
 	_idt_set((u32int)&idt_ptr);

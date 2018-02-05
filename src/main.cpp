@@ -17,8 +17,6 @@ extern "C" void kernel_main(void)
 	tty_init();
 	printf("Welcome. vmmos-i386\n\nKernel says...\n\n");
 
-	asm volatile ("int $0x3");
-
 	for (;;)
 		asm("hlt");
 }
