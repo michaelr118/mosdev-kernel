@@ -18,10 +18,10 @@ typedef struct IDT_PTR {
 } __attribute__((packed)) idt_ptr_t;
 
 typedef struct ISR_REG {
-	u32int ds;
-	u32int edi, esi, ebp, esp, ebx, edx, ecx, eax;
-	u32int int_no, err_code;
-	u32int eip, cs, opt, uesp, ss;
+	unsigned int gs, fs, es, ds;
+	unsigned int edi, esi, ebp, esp, ebx, edx, ecx, eax;
+	unsigned int int_no, err_code;
+	unsigned int eip, cs, opt, uesp, ss;
 } isr_reg_t;
 
 typedef void (*irq_handler_t)(isr_reg_t);

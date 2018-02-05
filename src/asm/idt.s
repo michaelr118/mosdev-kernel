@@ -138,19 +138,29 @@ and the error code (if any).
 */
 isr_common:
 	pusha
-	mov %ds, %ax
-	push %eax
+	push %ds
+	push %es
+	push %fs
+	push %gs
+
 	mov $0x10, %ax
+
 	mov %ax, %ds
 	mov %ax, %es
 	mov %ax, %fs
 	mov %ax, %gs
-	call isr_handler
+
+	mov %esp, %eax
+	push %eax
+
+	mov $isr_handler, %eax
+	call %eax
+
 	pop %eax
-	mov %ax, %ds
-	mov %ax, %es
-	mov %ax, %fs
-	mov %ax, %gs
+	pop %gs
+	pop %fs
+	pop %es
+	pop %ds
 	popa
 	add $8, %esp
 	sti
@@ -202,19 +212,29 @@ IRQ 15,47
 
 irq_common:
 	pusha
-	mov %ds, %ax
-	push %eax
+	push %ds
+	push %es
+	push %fs
+	push %gs
+
 	mov $0x10, %ax
+
 	mov %ax, %ds
 	mov %ax, %es
 	mov %ax, %fs
 	mov %ax, %gs
-	call irq_handler
+
+	mov %esp, %eax
+	push %eax
+
+	mov $irq_handler, %eax
+	call %eax
+
 	pop %eax
-	mov %ax, %ds
-	mov %ax, %es
-	mov %ax, %fs
-	mov %ax, %gs
+	pop %gs
+	pop %fs
+	pop %es
+	pop %ds
 	popa
 	add $8, %esp
 	sti

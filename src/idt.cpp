@@ -57,23 +57,48 @@ void idt_install(void)
 
 	// Zero the idt array initially so we don't get unexpected behavior
 	memset(&idt, 0, (sizeof(idt_entry_t) * 256));
+	memset(&irqh, 0, (sizeof(irq_handler_t) * 256));
 
 	// Here we remap the PIC master/slave to use IRQ 32+ since the ISR
 	// is required to have 0...31
+	
+	// Save master/slave state
+	unsigned char m, s;
+	m = io_inb(0x20);
+	s = io_inb(0xa0);
+
+	// Begin remap
 	io_outb(0x20, 0x11);
+	io_wait();
 	io_outb(0xa0, 0x11);
-	
+	io_wait();
+
+	// Master offset 32
 	io_outb(0x21, 0x20);
+	io_wait();
+	// Slave offset 40
 	io_outb(0xa1, 0x28);
-	
+	io_wait();
+
+	// Tell master about slave
 	io_outb(0x21, 0x04);
+	io_wait();
+	// Tell slave about master
 	io_outb(0xa1, 0x02);
-	
+	io_wait();
+
+	// Put both master/slave in 8086 mode (0x01)
 	io_outb(0x21, 0x01);
+	io_wait();
 	io_outb(0xa1, 0x01);
-	
-	io_outb(0x21, 0x00);
-	io_outb(0xa1, 0x00);
+	io_wait();
+
+	// Restore saved state
+	io_outb(0x21, m);
+	io_outb(0xa1, s);
+
+	io_outb(0x21, 0xfd);
+	io_outb(0xa1, 0xff);
 
 	// Begin mapping ISR 0...31 and IRQ 32+
 	
@@ -145,13 +170,83 @@ void idt_install(void)
 */
 extern "C" void isr_handler(isr_reg_t r)
 {
-	tty_puts("isr_handler: ");
+	tty_puts("isr: int_no=");
 	tty_putd(r.int_no);
-	tty_puts("\n");
+	tty_puts(" ");
 
-	// Since we're not handling the errors, go into an infinite loop
-	// Otherwise, we'll just jump back to the problem code and crash the computer
-	while (1) { }
+	switch (r.int_no)
+	{
+		case 0:
+			tty_puts("Division by zero");
+			break;
+		case 1:
+			tty_puts("Single-step interrupt");
+			break;
+		case 2:
+			tty_puts("NMI");
+			break;
+		case 3:
+			tty_puts("Breakpoint triggered");
+			break;
+		case 4:
+			tty_puts("Overflow detected");
+			break;
+		case 5:
+			tty_puts("Bounds error");
+			break;
+		case 6:
+			tty_puts("Invalid opcode");
+			break;
+		case 7:
+			tty_puts("Coprocessor not available");
+			break;
+		case 8:
+			tty_puts("Double fault");
+			break;
+		case 9:
+			tty_puts("Coprocessor segment overrun");
+			break;
+		case 10:
+			tty_puts("Invalid TSS");
+			break;
+		case 11:
+			tty_puts("Segment not present");
+			break;
+		case 12:
+			tty_puts("Stack fault");
+			break;
+		case 13:
+			tty_puts("General protection fault");
+			break;
+		case 14:
+			tty_puts("Page fault");
+			break;
+		case 16:
+			tty_puts("Math fault");
+			break;
+		case 17:
+			tty_puts("Alignment check");
+			break;
+		case 18:
+			tty_puts("Machine check");
+			break;
+		case 19:
+			tty_puts("Floating-point exception");
+			break;
+		case 20:
+			tty_puts("Virtualization exception");
+			break;
+		case 21:
+			tty_puts("Control protection exception");
+			break;
+		default:
+			tty_puts("General exception");
+			break;
+	}
+
+	tty_puts(" (err_code=");
+	tty_putd(r.err_code);
+	tty_puts(").\n");
 }
 
 /*

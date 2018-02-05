@@ -20,4 +20,9 @@ static inline u8int io_inb(u16int port)
 	return ret;
 }
 
+static inline void io_wait(void)
+{
+	asm volatile ( "jmp 1f\n\t1:jmp 2f\n\t2:" );
+}
+
 #endif
