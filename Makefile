@@ -1,7 +1,7 @@
 SC := i686-elf-as
 CC := i686-elf-g++
 
-CPPFLAGS := -ffreestanding -O2 -Wall -Wextra -nostdlib -fno-exceptions -fno-rtti
+CPPFLAGS := -Isrc/inc -ffreestanding -O2 -Wall -Wextra -nostdlib -fno-exceptions -fno-rtti
 LDFLAGS := -Tlinker.ld -ffreestanding -O2 -nostdlib -lgcc
 
 TARGET := vmmos-i386
