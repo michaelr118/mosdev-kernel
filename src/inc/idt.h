@@ -4,18 +4,18 @@
 #include "common.h"
 
 typedef struct IDT_ENTRY {
-	u16int base_l;
-	u16int sel;
-	u8int rsvd;
-	u8int opt;
-	u16int base_high;
-} __attribute__((packed)) idt_entry_t;
+	uint16_t base_l;
+	uint16_t sel;
+	uint8_t rsvd;
+	uint8_t opt;
+	uint16_t base_high;
+} idt_entry_t;
 
 typedef struct IDT_PTR {
-	u16int limit;
-	u32int base;
+	uint16_t limit;
+	uint32_t base;
 } __attribute__((packed)) idt_ptr_t;
 
-extern "C" void idt_install(void);
+void idt_init(void);
 
 #endif

@@ -3,9 +3,9 @@
 
 typedef struct INT_REG {
 	unsigned int gs, fs, es, ds;
-	unsigned int edi, esi, ebp, esp, ebx, edx, ecx, eax;
-	unsigned int int_no, err_code;
-	unsigned int eip, cs, opt, uesp, ss;
+	unsigned int edi, esi, ebp, rsvd, ebx, edx, ecx, eax;
+	unsigned int err_code, int_no;
+	unsigned int eip, cs, opt, esp, ss;
 } int_reg_t;
 
 #endif

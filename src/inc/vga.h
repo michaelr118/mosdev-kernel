@@ -26,12 +26,12 @@ enum VGA_COLOR {
 	VGA_COLOR_WHITE
 };
 
-static inline uint8_t vga_color(enum VGA_COLOR f, enum VGA_COLOR b)
+inline uint8_t vga_color(enum VGA_COLOR f, enum VGA_COLOR b)
 {
 	return (f | b << 4);
 }
 
-static inline uint16_t vga_entry(unsigned char uc, uint8_t color)
+inline uint16_t vga_entry(unsigned char uc, uint8_t color)
 {
 	return ((uint16_t)uc | (uint16_t)color << 8);
 }

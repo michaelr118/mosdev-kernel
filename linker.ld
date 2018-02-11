@@ -1,34 +1,33 @@
 /* Entry-point for the bootloader */
 ENTRY(_boot_main)
+OUTPUT_FORMAT(elf32-i386)
 
 SECTIONS
 {
-	/* Kernel will be loaded at 1M by the bootloader */
-	. = 1M;
+	/* Kernel will be loaded at 3GB + 1MB by the bootloader */
+	. = 0xc0100000;
 
-	/* Multiboot header information */
-	.text BLOCK(4K) : ALIGN(4K)
+	/* Multiboot header and kernel code */
+	.text : AT(ADDR(.text) - 0xc0000000)
 	{
-		*(.multiboot)
+		_text = .;
 		*(.text)
-	}
-
-	/* Read-only data */
-	.rodata BLOCK(4K) : ALIGN(4K)
-	{
-		*(.rodata)
+		*(.rodata*)
 	}
 
 	/* Read/Write (initialized) */
-	.data BLOCK(4K) : ALIGN(4K)
+	.data ALIGN(0x1000) : AT(ADDR(.data) - 0xc0000000)
 	{
+		_data = .;
 		*(.data)
 	}
 
 	/* Read/Write (uninitialized) */
-	.bss BLOCK(4K) : ALIGN(4K)
+	.bss : AT(ADDR(.bss) - 0xc0000000)
 	{
+		_bss = .;
 		*(COMMON)
 		*(.bss)
 	}
+	_end = .;
 }

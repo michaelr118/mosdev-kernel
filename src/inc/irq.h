@@ -7,6 +7,6 @@
 typedef void (*irq_handler_t)(int_reg_t);
 
 void irq_init(void);
-void irq_set_handler(u8int irq_number, irq_handler_t handler);
+void irq_set_handler(uint8_t irq_number, irq_handler_t handler);
 
 #endif

@@ -1,31 +1,27 @@
 #ifndef _KERNEL_COMMON_H
 #define _KERNEL_COMMON_H
 
-#define CAT_I(a,b) a##b
-#define CAT(a,b) CAT_I(a, b)
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
 
-typedef unsigned int u32int;
-typedef int s32int;
-typedef unsigned short u16int;
-typedef short s16int;
-typedef unsigned char u8int;
-typedef char s8int;
+#define KERNEL_VIRTUAL_BASE 0xc0000000
 
 /*
  * Output byte val to a port on the IO bus
 */
-static inline void io_outb(u16int port, u8int val)
+static inline void io_outb(uint16_t port, uint8_t val)
 {
-	asm volatile ( "outb %0, %1" : : "a"(val), "Nd"(port) );
+	asm volatile("outb %0, %1":: "a"(val), "Nd"(port));
 }
 
 /*
  * Read byte from port on the IO bus
 */
-static inline u8int io_inb(u16int port)
+static inline uint8_t io_inb(uint16_t port)
 {
-	u8int ret;
-	asm volatile ( "inb %1, %0" : "=a"(ret) : "Nd"(port) );
+	uint8_t ret;
+	asm volatile("inb %1, %0": "=a"(ret): "Nd"(port));
 	return ret;
 }
 
@@ -34,7 +30,7 @@ static inline u8int io_inb(u16int port)
 */
 static inline void io_wait(void)
 {
-	asm volatile ( "jmp 1f\n\t1:jmp 2f\n\t2:" );
+	asm volatile("jmp 1f\n\t1:jmp 2f\n\t2:");
 }
 
 #endif
